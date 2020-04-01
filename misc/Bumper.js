@@ -77,6 +77,41 @@ class Bumper extends EventEmitter {
   }
 
   /**
+   * Set RGB led to red
+   */
+  red() {
+    this.rgb(65535, 0, 0)
+  }
+
+  /**
+   * Set RGB led to green
+   */
+  green() {
+    this.rgb(0, 65535, 0)
+  }
+
+  /**
+   * Set RGB led to blue
+   */
+  blue() {
+    this.rgb(0, 0, 65535)
+  }
+
+  /**
+   * Set RGB led to white
+   */
+  white() {
+    this.rgb(65535, 65535, 65535)
+  }
+
+  /**
+   * Set RGB led to black (aka. turn it off)
+   */
+  black() {
+    this.rgb(0, 0, 0)
+  }
+
+  /**
    * Compute an id for the bumper
    * @returns the computed id
    */

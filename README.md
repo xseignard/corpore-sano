@@ -6,7 +6,7 @@
 
 ## Node.js API
 
-Please refer to `misc/Bumper.js` file.
+Please refer to `misc/Bumper.js` file. An example usage is available in `misc/demo.js`.
 
 ### Constructor:
 

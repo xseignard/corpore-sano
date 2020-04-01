@@ -6,7 +6,7 @@
 
 ## Node.js API
 
-Please refer to `misc/Bumper.js` folder.
+Please refer to `misc/Bumper.js` file.
 
 ### Constructor:
 

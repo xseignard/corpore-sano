@@ -3,10 +3,12 @@
 #include <EthernetUdp.h>
 #include <SPI.h>
 #include <wiring_private.h>
+// must be after Ethernet.h
+#include <ArduinoOTA.h>
 
 #include "./Bumper/Bumper.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 const int boardId = 1;
 
@@ -65,6 +67,8 @@ void setup() {
  * Check for incoming UDP messages and send some when a bumper is pressed.
  */
 void loop() {
+  // check for firmware updates
+  ArduinoOTA.poll();
   // check for incoming UDP data
   int packetSize = Udp.parsePacket();
   if (packetSize > 0) {
@@ -214,6 +218,8 @@ void initArduino() {
   }
   // start UDP
   Udp.begin(localPort);
+  // start OTA service
+  ArduinoOTA.begin(Ethernet.localIP(), "pioche", "coucou", InternalStorage);
 }
 
 /**

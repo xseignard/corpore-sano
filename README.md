@@ -1,10 +1,77 @@
 # Corpore Sano
 
-![CI](https://github.com/xseignard/mpvite/workflows/CI/badge.svg)
+![CI](https://github.com/xseignard/corpore-sano/workflows/CI/badge.svg)
 
-## SERCOM2 SPI
+![board](./.github/images/board.jpg)
 
-### Variant
+## Node.js API
+
+Please refer to `misc/Bumper.js` folder.
+
+### Constructor:
+
+```js
+const bumper = new Bumper(boardId, bumperId, udpClient)
+```
+
+- `boardId` will be used to compute board IP and bumper id
+- `bumperId` is the id of the bumper on the board
+- `udpClient` is the client to send/receive messages
+
+The bumper id is computed with the following : `id = boardId * 10 + bumperId`. So the bumper 4 of the board 3 have the an id of 34.
+
+### Methods:
+
+#### `buzz`
+
+```js
+bumper.buzz(true) // turns on the buzzer
+setTimeout(() => {
+  bumper.buzz(false) // turns off the buzzer
+}, 1000)
+```
+
+#### `rgb`
+
+```js
+bumper.rgb(r, g, b) // will turn the rgb led to the given r, g, b
+```
+
+Note: colors channels are 16bit encoded, so from 0 (0%) to 65535 (100%)
+
+#### color aliases
+
+```js
+bumper.red() // 100% r, 0% g, 0% b
+bumper.green() // 0% r, 100% g, 0% b
+bumper.blue() // 0% r, 0% g, 100% b
+bumper.white() // 100% r, 100% g, 100% b
+bumper.black() // 0% r, 0% g, 0% b, rgb led is off
+```
+
+### Events:
+
+#### `press`
+
+```js
+bumper.on('press', () => {
+  // do what you want
+})
+```
+
+#### `relesase`
+
+```js
+bumper.on('relesase', () => {
+  // do what you want
+})
+```
+
+## Various notes
+
+### SERCOM2 SPI
+
+#### Variant
 
 | SAMD21 pin | Arduino pin | SERCOM PAD     | ALT or NOT     |
 | ---------- | ----------- | -------------- | -------------- |
@@ -13,9 +80,9 @@
 | PA08       | 4           | SERCOM2/PAD[0] | PIO_SERCOM_ALT |
 | PA15       | 5           | SERCOM2/PAD[3] | PIO_SERCOM     |
 
-### Pads selection
+#### Pads selection
 
-#### MISO
+##### MISO
 
 ```cpp
 typedef enum
@@ -27,7 +94,7 @@ typedef enum
 } SercomRXPad;
 ```
 
-#### MOSI/SCK
+##### MOSI/SCK
 
 ```cpp
 typedef enum

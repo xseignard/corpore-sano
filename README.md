@@ -25,16 +25,24 @@ The bumper id is computed with the following : `id = boardId * 10 + bumperId`. S
 #### `buzz`
 
 ```js
-bumper.buzz(true) // turns on the buzzer
-setTimeout(() => {
-  bumper.buzz(false) // turns off the buzzer
-}, 1000)
+try {
+  bumper.buzz(true) // turns on the buzzer
+  setTimeout(() => {
+    bumper.buzz(false) // turns off the buzzer
+  }, 1000)
+} catch (err) {
+  console.log(err)
+}
 ```
 
 #### `rgb`
 
 ```js
-bumper.rgb(r, g, b) // will turn the rgb led to the given r, g, b
+try {
+  bumper.rgb(r, g, b) // will turn the rgb led to the given r, g, b
+} catch (err) {
+  console.log(err)
+}
 ```
 
 Note: colors channels are 16bit encoded, so from 0 (0%) to 65535 (100%)

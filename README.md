@@ -18,7 +18,7 @@ const bumper = new Bumper(boardId, bumperId, udpClient)
 - `bumperId` is the id of the bumper on the board
 - `udpClient` is the client to send/receive messages
 
-The bumper id is computed with the following : `id = boardId * 10 + bumperId`. So the bumper 4 of the board 3 have the an id of 34.
+The bumper id is computed with the following : `id = boardId * 10 + bumperId`. So the bumper 4 of the board 3 have an id of 34.
 
 ### Methods:
 

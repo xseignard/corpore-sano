@@ -34,7 +34,7 @@ bumpers.map(bumper => {
 // let i = true
 // setInterval(() => {
 //   try {
-//     bumper0.rgb(i ? 65535 : 0, 0, 0)
+//     bumpers[0].rgb(i ? 65535 : 0, 0, 0)
 //     i = !i
 //   } catch (err) {
 //     console.log(err)

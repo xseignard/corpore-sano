@@ -8,7 +8,7 @@
 
 #define DEBUG 1
 
-const int boardId = 1;
+const int boardId = 2;
 
 //-----------
 // Networking stuff
@@ -58,7 +58,6 @@ char packetBuffer[UDP_TX_PACKET_MAX_SIZE];
 void setup() {
   initArduino();
   blink();
-  delay(5000);
 }
 
 /**
@@ -187,6 +186,7 @@ void initArduino() {
   // Serial comms
 #if DEBUG
   SerialUSB.begin(9600);
+  delay(5000);
 #endif
   // led driver
   tlc.begin();

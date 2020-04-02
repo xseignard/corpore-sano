@@ -8,7 +8,7 @@
 
 #include "./Bumper/Bumper.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 const int boardId = 1;
 
@@ -191,6 +191,7 @@ void initArduino() {
   // Serial comms
 #if DEBUG
   SerialUSB.begin(9600);
+  delay(5000);
 #endif
   // led driver
   tlc.begin();
@@ -219,6 +220,9 @@ void initArduino() {
   // start UDP
   Udp.begin(localPort);
   // start OTA service
+#if DEBUG
+  SerialUSB.println(Ethernet.localIP());
+#endif
   ArduinoOTA.begin(Ethernet.localIP(), "pioche", "coucou", InternalStorage);
 }
 

@@ -6,17 +6,21 @@
 
 #include "./Bumper/Bumper.h"
 
-#define DEBUG 1
+#define BOARD_ID 11
+// enable/disable debug through serial usb
+#define DEBUG 0
 
-const int boardId = 2;
+#define LED 18
+// enable/disable led feedback (blink for received and sent messages)
+#define LED_FEEDBACK 1
 
 //-----------
 // Networking stuff
 //-----------
 // arduino network configuration
 // TODO: increment mac adress and IP
-byte mac[] = {0x00, 0x00, 0x00, 0x00, 0x00, boardId};
-IPAddress ip(2, 0, 0, boardId);
+byte mac[] = {0x00, 0x00, 0x00, 0x00, 0x00, BOARD_ID};
+IPAddress ip(2, 0, 0, BOARD_ID);
 unsigned int localPort = 8888;
 // server IP and port
 IPAddress serverIP(2, 0, 0, 254);
@@ -26,7 +30,7 @@ EthernetUDP Udp;
 //-----------
 // Led driver stuff (TLC59711)
 //-----------
-SPIClass SPI2(&sercom2, 3, 5, 4, SPI_PAD_0_SCK_3, SERCOM_RX_PAD_1);
+SPIClass SPI2(&sercom2, 2, 5, 4, SPI_PAD_0_SCK_3, SERCOM_RX_PAD_2);
 Adafruit_TLC59711 tlc = Adafruit_TLC59711(2, &SPI2);
 
 //-----------
@@ -68,7 +72,7 @@ void loop() {
   int packetSize = Udp.parsePacket();
   if (packetSize > 0) {
     Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-    handleCommands();
+    handleCommand();
   }
   // check for bumpers state
   for (int i = 0; i < BUMPER_COUNT; i++) {
@@ -91,7 +95,7 @@ void loop() {
 
 /**
  * Handles incoming UDP commands.
- * Each command is separated by '#'. Each command consist of the following:
+ * Each command consist of the following:
  * - bumperId
  * - action: B for buzzer, C for color
  * - actionValue:
@@ -106,65 +110,59 @@ void loop() {
  * - 3 for B
  * - 19 for C
  */
-void handleCommands() {
-  // read each command pair
-  char* command = strtok(packetBuffer, "#");
-  while (command != 0) {
-    // only keep commands that have a length of 3 or 19
-    // silentely ignore others
-    switch (strlen(command)) {
-      // on/off buzzer
-      case 3: {
-        int id = command[0] - '0';
-        int value = command[2] - '0';
-#if DEBUG
-        SerialUSB.print(bumpers[id].getId());
-        SerialUSB.print(": ");
-        SerialUSB.print(value);
+void handleCommand() {
+#if LED_FEEDBACK
+  digitalWrite(LED, HIGH);
 #endif
-        bumpers[id].buzz(!!value);
-        break;
-      }
-      // RGB led
-      case 19: {
-        int id = command[0] - '0';
-        char tmp[5];
-        tmp[0] = command[2];
-        tmp[1] = command[3];
-        tmp[2] = command[4];
-        tmp[3] = command[5];
-        tmp[4] = command[6];
-        int r = atoi(tmp);
-        tmp[0] = command[8];
-        tmp[1] = command[9];
-        tmp[2] = command[10];
-        tmp[3] = command[11];
-        tmp[4] = command[12];
-        int g = atoi(tmp);
-        tmp[0] = command[14];
-        tmp[1] = command[15];
-        tmp[2] = command[16];
-        tmp[3] = command[17];
-        tmp[4] = command[18];
-        int b = atoi(tmp);
+  // read command
+  int id = packetBuffer[0] - '0';
+  char action = packetBuffer[1];
+  if (action == 'B') {
+    // buzzer action
+    int value = packetBuffer[2] - '0';
 #if DEBUG
-        SerialUSB.print(bumpers[id].getId());
-        SerialUSB.print(": ");
-        SerialUSB.print(r);
-        SerialUSB.print("/");
-        SerialUSB.print(g);
-        SerialUSB.print("/");
-        SerialUSB.println(b);
+    SerialUSB.print(bumpers[id].getId());
+    SerialUSB.print(": ");
+    SerialUSB.print(value);
+    SerialUSB.println(" (buzzer)");
 #endif
-        bumpers[id].rgb((uint16_t)r, (uint16_t)g, (uint16_t)b);
-        break;
-      }
-      default:
-        break;
-    }
-    // find the next command in input string
-    command = strtok(0, "#");
+    bumpers[id].buzz(!!value);
+  } else if (action == 'C') {
+    // rgb action
+    char tmp[5];
+    tmp[0] = packetBuffer[2];
+    tmp[1] = packetBuffer[3];
+    tmp[2] = packetBuffer[4];
+    tmp[3] = packetBuffer[5];
+    tmp[4] = packetBuffer[6];
+    int r = atoi(tmp);
+    tmp[0] = packetBuffer[8];
+    tmp[1] = packetBuffer[9];
+    tmp[2] = packetBuffer[10];
+    tmp[3] = packetBuffer[11];
+    tmp[4] = packetBuffer[12];
+    int g = atoi(tmp);
+    tmp[0] = packetBuffer[14];
+    tmp[1] = packetBuffer[15];
+    tmp[2] = packetBuffer[16];
+    tmp[3] = packetBuffer[17];
+    tmp[4] = packetBuffer[18];
+    int b = atoi(tmp);
+#if DEBUG
+    SerialUSB.print(bumpers[id].getId());
+    SerialUSB.print(": ");
+    SerialUSB.print(r);
+    SerialUSB.print("/");
+    SerialUSB.print(g);
+    SerialUSB.print("/");
+    SerialUSB.print(b);
+    SerialUSB.println(" (rgb)");
+#endif
+    bumpers[id].rgb((uint16_t)r, (uint16_t)g, (uint16_t)b);
   }
+#if LED_FEEDBACK
+  digitalWrite(LED, LOW);
+#endif
 }
 
 /**
@@ -174,9 +172,15 @@ void sendData(String data) {
 #if DEBUG
   SerialUSB.println(data);
 #endif
+#if LED_FEEDBACK
+  digitalWrite(LED, HIGH);
+#endif
   Udp.beginPacket(serverIP, serverPort);
   Udp.print(data);
   Udp.endPacket();
+#if LED_FEEDBACK
+  digitalWrite(LED, LOW);
+#endif
 }
 
 /**
@@ -188,9 +192,14 @@ void initArduino() {
   SerialUSB.begin(9600);
   delay(5000);
 #endif
+#if LED_FEEDBACK
+  // mcu led pin
+  pinMode(LED, OUTPUT);
+#endif
   // led driver
   tlc.begin();
-  pinPeripheral(3, PIO_SERCOM_ALT);
+  // miso not needed, don't define it
+  // pinPeripheral(2, PIO_SERCOM);
   pinPeripheral(4, PIO_SERCOM_ALT);
   pinPeripheral(5, PIO_SERCOM);
   tlc.write();
@@ -220,10 +229,16 @@ void initArduino() {
  * Blink white the bumpers
  */
 void blink() {
+#if LED_FEEDBACK
+  digitalWrite(LED, HIGH);
+#endif
   for (int i = 0; i < BUMPER_COUNT; i++) {
     bumpers[i].rgb(65535, 65535, 65535);
   }
   delay(1000);
+#if LED_FEEDBACK
+  digitalWrite(LED, LOW);
+#endif
   for (int i = 0; i < BUMPER_COUNT; i++) {
     bumpers[i].rgb(0, 0, 0);
   }

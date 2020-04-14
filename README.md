@@ -25,24 +25,16 @@ The bumper id is computed with the following : `id = boardId * 10 + bumperId`. S
 #### `buzz`
 
 ```js
-try {
-  bumper.buzz(true) // turns on the buzzer
-  setTimeout(() => {
-    bumper.buzz(false) // turns off the buzzer
-  }, 1000)
-} catch (err) {
-  console.log(err)
-}
+bumper.buzz(true) // turns on the buzzer
+setTimeout(() => {
+  bumper.buzz(false) // turns off the buzzer
+}, 1000)
 ```
 
 #### `rgb`
 
 ```js
-try {
-  bumper.rgb(r, g, b) // will turn the rgb led to the given r, g, b
-} catch (err) {
-  console.log(err)
-}
+bumper.rgb(r, g, b) // will turn the rgb led to the given r, g, b
 ```
 
 Note: colors channels are 16bit encoded, so from 0 (0%) to 65535 (100%)
@@ -71,6 +63,14 @@ bumper.on('press', () => {
 
 ```js
 bumper.on('relesase', () => {
+  // do what you want
+})
+```
+
+#### `error`
+
+```js
+bumper.on('error', err => {
   // do what you want
 })
 ```
@@ -117,11 +117,11 @@ typedef enum
 - I need SCK on PA15 (pin 5, pad 3), MOSI on PA08 (pin 4, pad 0)
 - It gives me : SPI_PAD_0_SCK_3
 - It then restricts MISO on pad 1 (PA09, pin 3) or 2 (PA14, pin 2)
-- I choose pad 1 for no particular reason
+- I choose pad 2 for no particular reason
 
 So my SPIClass would be :
 
 ```cpp
 // SPIClass SPI (&PERIPH_SPI, PIN_SPI_MISO, PIN_SPI_SCK, PIN_SPI_MOSI, PAD_SPI_TX, PAD_SPI_RX);
-SPIClass SPI2(&sercom2, 3, 5, 4, SPI_PAD_0_SCK_3, SERCOM_RX_PAD_1);
+SPIClass SPI2(&sercom2, 2, 5, 4, SPI_PAD_0_SCK_3, SERCOM_RX_PAD_2);
 ```

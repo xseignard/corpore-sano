@@ -50,7 +50,7 @@ class Bumper extends EventEmitter {
       this.port,
       this.host,
       err => {
-        if (err) throw new Error('Failed to send buzzer on/off message')
+        if (err) this.emit('error', err)
       }
     )
   }
@@ -71,7 +71,7 @@ class Bumper extends EventEmitter {
       this.port,
       this.host,
       err => {
-        if (err) throw new Error('Failed to send rgb message')
+        if (err) this.emit('error', err)
       }
     )
   }

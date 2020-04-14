@@ -16,7 +16,7 @@ client.on('listening', () => {
 
 // bumpers
 const bumpers = []
-for (let i = 0; i < NUM_BOARDS; i++) {
+for (let i = 1; i <= NUM_BOARDS; i++) {
   for (let j = 0; j < BUMPERS_PER_BOARDS; j++) {
     const bumper = new Bumper(i, j, client)
     bumpers.push(bumper)
@@ -29,14 +29,16 @@ bumpers.map(bumper => {
   bumper.on('release', () => {
     console.log(`Bumper ${bumper.getId()} released`)
   })
+  bumper.on('error', err => {
+    // console.log(err)
+  })
 })
 
-// let i = true
-// setInterval(() => {
-//   try {
-//     bumpers[0].rgb(i ? 65535 : 0, 0, 0)
-//     i = !i
-//   } catch (err) {
-//     console.log(err)
-//   }
-// }, 50)
+let i = true
+setInterval(() => {
+  bumpers.map(bumper => {
+    bumper.rgb(i ? 65535 : 0, i ? 65535 : 0, i ? 65535 : 0)
+    bumper.buzz(i)
+  })
+  i = !i
+}, 2000)

@@ -6,7 +6,7 @@
 
 #include "./Bumper/Bumper.h"
 
-#define BOARD_ID 11
+#define BOARD_ID 22
 // enable/disable debug through serial usb
 #define DEBUG 0
 

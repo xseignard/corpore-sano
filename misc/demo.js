@@ -2,7 +2,7 @@ const udp = require('dgram')
 const Bumper = require('./Bumper')
 
 const SERVER_PORT = process.env.SERVER_PORT || 8889
-const NUM_BOARDS = 20
+const NUM_BOARDS = 22
 const BUMPERS_PER_BOARDS = 8
 
 // udp socket

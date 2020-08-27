@@ -3,7 +3,7 @@ const Bumper = require('./Bumper')
 
 const SERVER_PORT = process.env.SERVER_PORT || 8889
 const NUM_BOARDS = 22
-const BUMPERS_PER_BOARDS = 8
+const BUMPERS_PER_BOARDS = 5
 
 // udp socket
 const client = udp.createSocket('udp4')
@@ -26,6 +26,9 @@ bumpers.map(bumper => {
   bumper.on('press', () => {
     console.log(`Bumper ${bumper.getId()} pressed`)
   })
+  bumper.on('hold', () => {
+    console.log(`Bumper ${bumper.getId()} held`)
+  })
   bumper.on('release', () => {
     console.log(`Bumper ${bumper.getId()} released`)
   })
@@ -38,7 +41,7 @@ let i = true
 setInterval(() => {
   bumpers.map(bumper => {
     bumper.rgb(i ? 65535 : 0, i ? 65535 : 0, i ? 65535 : 0)
-    bumper.buzz(i)
+    // bumper.buzz(i)
   })
   i = !i
-}, 2000)
+}, 10)

@@ -6,9 +6,9 @@
 
 #include "./Bumper/Bumper.h"
 
-#define BOARD_ID 22
+#define BOARD_ID 10
 // enable/disable debug through serial usb
-#define DEBUG 0
+#define DEBUG 1
 
 #define LED 18
 // enable/disable led feedback (blink for received and sent messages)
@@ -97,18 +97,21 @@ void loop() {
  * Handles incoming UDP commands.
  * Each command consist of the following:
  * - bumperId
- * - action: B for buzzer, C for color
+ * - action: B for buzzer, C for color, D for setting debounce time
  * - actionValue:
  *  - 1 or 0 (on/off) for B
  *  - R;G;B for C, where R, G and B are 00000 to 65535
+ *  - 000 to 999 for D (in ms)
  *
  * Examples:
  * 0B1 turns on buzzer 0
  * 7C65535;65535;65535 turns RGB led 7 to white
+ * 3D050 turns debounce time to 50ms for button 3
  *
  * Commands length:
  * - 3 for B
  * - 19 for C
+ * - 5 for D
  */
 void handleCommand() {
 #if LED_FEEDBACK
@@ -159,6 +162,20 @@ void handleCommand() {
     SerialUSB.println(" (rgb)");
 #endif
     bumpers[id].rgb((uint16_t)r, (uint16_t)g, (uint16_t)b);
+  } else if (action == 'D') {
+    // debounce time
+    char tmp[3];
+    tmp[0] = packetBuffer[2];
+    tmp[1] = packetBuffer[3];
+    tmp[2] = packetBuffer[4];
+    int debounce = atoi(tmp);
+#if DEBUG
+    SerialUSB.print(bumpers[id].getId());
+    SerialUSB.print(": ");
+    SerialUSB.print(debounce);
+    SerialUSB.println(" (debounce time)");
+#endif
+    bumpers[id].setDebounce(debounce);
   }
 #if LED_FEEDBACK
   digitalWrite(LED, LOW);
@@ -213,7 +230,7 @@ void initArduino() {
       delay(1000);
     }
   }
-  if (Ethernet.hardwareStatus() == EthernetNoHardware) {
+  if (Ethernet.linkStatus() != LinkON) {
     while (true) {
 #if DEBUG
       SerialUSB.println("Ethernet cable seems to be not connected...");

@@ -12,6 +12,7 @@ class Bumper {
   void buzz(bool onOff);
   bool isPressed();
   bool isReleased();
+  void setDebounce(int debounce);
   int getId();
 
  private:
@@ -20,6 +21,10 @@ class Bumper {
   Button* _btn;
   int _buzzerPin;
   Adafruit_TLC59711* _ledDriver;
+  int _debounce;
+  unsigned long _lastPress;
+  unsigned long _lastRelease;
+  unsigned long _lastRGB;
 };
 
 #endif

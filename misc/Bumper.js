@@ -6,14 +6,30 @@ class Bumper extends EventEmitter {
    * @param {Number} boardId - id of the board, used to compute IP
    * @param {Number} bumperId - id on the board of the bumper
    * @param {Object} udpClient - instance of udp client
+   * @param {Number} holdTime - time (in ms) to trigger a 'hold' event, defaults to 3000ms
    */
-  constructor(boardId, bumperId, udpClient) {
+  constructor(boardId, bumperId, udpClient, holdTime = 3000) {
     super()
     this.boardId = boardId
     this.bumperId = bumperId
     this.host = `2.0.0.${this.boardId}`
     this.port = 8888
     this.client = udpClient
+    this.lastPress = new Date()
+    this.lastRelease = new Date()
+    this.holdTime = holdTime
+    this.canSendHold = false
+    setInterval(() => {
+      const now = new Date()
+      if (
+        this.lastPress > this.lastRelease &&
+        now - this.lastPress > this.holdTime &&
+        this.canSendHold
+      ) {
+        this.emit('hold')
+        this.canSendHold = false
+      }
+    }, 50)
     // handle incoming messages
     this.client.on('message', (data, info) => {
       const address = info.address
@@ -29,10 +45,14 @@ class Bumper extends EventEmitter {
 
         // pressed message
         if (msg.startsWith('P') && messageContainsBumperId) {
+          this.lastPress = new Date()
+          this.canSendHold = true
           this.emit('press')
         }
         // released message
         if (msg.startsWith('R') && messageContainsBumperId) {
+          this.lastRelease = new Date()
+          this.canSendHold = true
           this.emit('release')
         }
       }
@@ -111,6 +131,30 @@ class Bumper extends EventEmitter {
     this.rgb(0, 0, 0)
   }
 
+  /**
+   * Set debounce time
+   * @param {Number} debounceTime - debounce time in ms (0 -> 999)
+   */
+  setDebounceTime(debounceTime) {
+    const paddedDebounceTime = `${debounceTime}`.padStart(5, '0')
+    this.client.send(
+      // create a message like the following: 0D100
+      Buffer.from(`${this.bumperId}D${paddedDebounceTime}`),
+      this.port,
+      this.host,
+      err => {
+        if (err) this.emit('error', err)
+      }
+    )
+  }
+
+  /**
+   * Set hold time
+   * @param {Number} holdTime - hold time in ms
+   */
+  setHoldTime(holdTime) {
+    this.holdTime = holdTime
+  }
   /**
    * Compute an id for the bumper
    * @returns the computed id

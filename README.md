@@ -11,12 +11,13 @@ Please refer to `misc/Bumper.js` file. An example usage is available in `misc/de
 ### Constructor:
 
 ```js
-const bumper = new Bumper(boardId, bumperId, udpClient)
+const bumper = new Bumper(boardId, bumperId, udpClient, holdTime)
 ```
 
 - `boardId` will be used to compute board IP and bumper id
 - `bumperId` is the id of the bumper on the board
 - `udpClient` is the client to send/receive messages
+- `holdTime` is the time (in ms) after a long press will trigger a 'hold' event (defaults to 3000ms, hence not mandatory)
 
 The bumper id is computed with the following : `id = boardId * 10 + bumperId`. So the bumper 4 of the board 3 have an id of 34.
 
@@ -49,12 +50,26 @@ bumper.white() // 100% r, 100% g, 100% b
 bumper.black() // 0% r, 0% g, 0% b, rgb led is off
 ```
 
+#### `setHoldTime`
+
+```js
+bumper.setHoldTime(500) // 'hold' event will now be fired after a press of at least 500ms
+```
+
 ### Events:
 
 #### `press`
 
 ```js
 bumper.on('press', () => {
+  // do what you want
+})
+```
+
+#### `hold`
+
+```js
+bumper.on('hold', () => {
   // do what you want
 })
 ```

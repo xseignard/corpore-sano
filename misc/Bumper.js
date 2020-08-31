@@ -12,7 +12,7 @@ class Bumper extends EventEmitter {
     super()
     this.boardId = boardId
     this.bumperId = bumperId
-    this.host = `2.0.0.${this.boardId}`
+    this.host = `192.168.3.${this.boardId}`
     this.port = 8888
     this.client = udpClient
     this.lastPress = new Date()

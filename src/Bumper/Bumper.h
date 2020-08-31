@@ -25,6 +25,8 @@ class Bumper {
   unsigned long _lastPress;
   unsigned long _lastRelease;
   unsigned long _lastRGB;
+  bool _prevPress;
+  bool _prevRelease;
 };
 
 #endif

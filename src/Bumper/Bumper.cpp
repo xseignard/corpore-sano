@@ -1,6 +1,6 @@
 #include "./Bumper.h"
 
-#define RGB_DELAY 5
+#define RGB_DELAY 50
 
 Bumper::Bumper(int id, int ledNum, int btnPin, int buzzerPin, Adafruit_TLC59711* ledDriver) {
   _id = id;
@@ -13,6 +13,8 @@ Bumper::Bumper(int id, int ledNum, int btnPin, int buzzerPin, Adafruit_TLC59711*
   _lastPress = millis();
   _lastRelease = millis();
   _lastRGB = millis();
+  _prevPress = false;
+  _prevRelease = false;
 }
 
 void Bumper::rgb(uint16_t r, uint16_t g, uint16_t b) {
@@ -27,18 +29,34 @@ void Bumper::buzz(bool onOff) {
 
 bool Bumper::isPressed() {
   unsigned long now = millis();
-  if (now - _lastPress > _debounce && now - _lastRGB > RGB_DELAY) {
+  if (now - _lastPress > _debounce) {
     _lastPress = now;
-    return _btn->uniquePress();
+    int j = 0;
+    for (int i = 0; i < 20; i++) {
+      bool current = _btn->isPressed();
+      if (current) j++;
+      delayMicroseconds(100);
+    }
+    bool result = j > 15 && !_prevPress;
+    _prevPress = j > 15;
+    return result;
   }
   else return false;
 }
 
 bool Bumper::isReleased() {
   unsigned long now = millis();
-  if (now - _lastRelease > _debounce && now - _lastRGB > RGB_DELAY) {
+  if (now - _lastRelease > _debounce) {
     _lastRelease = now;
-    return (_btn->stateChanged() && !_btn->isPressed());
+    int j = 0;
+    for (int i = 0; i < 20; i++) {
+      bool current = !_btn->isPressed();
+      if (current) j++;
+      delayMicroseconds(100);
+    }
+    bool result = j > 15 && !_prevRelease;
+    _prevRelease = j > 15;
+    return result;
   }
   else return false;
 }

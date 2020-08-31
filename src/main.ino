@@ -6,9 +6,9 @@
 
 #include "./Bumper/Bumper.h"
 
-#define BOARD_ID 10
+#define BOARD_ID 21
 // enable/disable debug through serial usb
-#define DEBUG 1
+#define DEBUG 0
 
 #define LED 18
 // enable/disable led feedback (blink for received and sent messages)
@@ -20,10 +20,10 @@
 // arduino network configuration
 // TODO: increment mac adress and IP
 byte mac[] = {0x00, 0x00, 0x00, 0x00, 0x00, BOARD_ID};
-IPAddress ip(2, 0, 0, BOARD_ID);
+IPAddress ip(192, 168, 3, BOARD_ID);
 unsigned int localPort = 8888;
 // server IP and port
-IPAddress serverIP(2, 0, 0, 254);
+IPAddress serverIP(192, 168, 3, 254);
 unsigned int serverPort = 8889;
 EthernetUDP Udp;
 

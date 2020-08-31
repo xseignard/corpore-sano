@@ -52,7 +52,7 @@ class Bumper extends EventEmitter {
         // released message
         if (msg.startsWith('R') && messageContainsBumperId) {
           this.lastRelease = new Date()
-          this.canSendHold = true
+          this.canSendHold = true // TODO: should be false ?
           this.emit('release')
         }
       }
@@ -136,7 +136,7 @@ class Bumper extends EventEmitter {
    * @param {Number} debounceTime - debounce time in ms (0 -> 999)
    */
   setDebounceTime(debounceTime) {
-    const paddedDebounceTime = `${debounceTime}`.padStart(5, '0')
+    const paddedDebounceTime = `${debounceTime}`.padStart(3, '0')
     this.client.send(
       // create a message like the following: 0D100
       Buffer.from(`${this.bumperId}D${paddedDebounceTime}`),
